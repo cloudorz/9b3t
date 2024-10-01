@@ -112,9 +112,19 @@ class NineBoard:
             return GameState.DRAW
     
 
-    def evaluate(self):
-        score = sum(map(self.evaluate_mini_board, self.boards))
-        return score + self.evaluate_overall_board()
+
+class EvaluationVersionOne:
+
+    def __init__(self):
+        self._win_combinations = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Columns
+            [0, 4, 8], [2, 4, 6]  # Diagonals
+        ]
+
+    def evaluate(self, board):
+        score = sum(map(self.evaluate_mini_board, board.boards))
+        return score + self.evaluate_overall_board(board.overall_board)
 
 
     def evaluate_mini_board(self, board):
@@ -133,10 +143,10 @@ class NineBoard:
         return score
 
 
-    def evaluate_overall_board(self):
+    def evaluate_overall_board(self, overall_board):
         score = 0
         for row in self._win_combinations:
-            values = [self.overall_board[i] for i in row]
+            values = [overall_board[i] for i in row]
             if values.count(GameState.X_WIN) == 3:
                 score += 100
             elif values.count(GameState.O_WIN) == 3:
@@ -148,83 +158,90 @@ class NineBoard:
         
         return score
 
-    
 
-def max_value(board, depth, alpha, beta):
-    if board.terminal() or depth == 0:
-        return board.evaluate()
+class MiniMaxPlayer:
 
-    max_score = -math.inf
-    for action in board.actions():
-        board.make_move(*action)
-        score = min_value(board, depth - 1, alpha, beta)
-        board.undo_move(*action)
-        max_score = max(score, max_score)
-        alpha = max(score, alpha)
-        if beta <= alpha:
-            break
+    def __init__(self, evaluation):
+        self.evaluation = evaluation
 
-    return max_score
+    def max_value(self, board, depth, alpha, beta):
+        if board.terminal() or depth == 0:
+            return self.evaluation.evaluate(board)
 
-def min_value(board, depth, alpha, beta):
-    if board.terminal() or depth == 0:
-        return board.evaluate()
+        max_score = -math.inf
+        for action in board.actions():
+            board.make_move(*action)
+            score = self.min_value(board, depth - 1, alpha, beta)
+            board.undo_move(*action)
+            max_score = max(score, max_score)
+            alpha = max(score, alpha)
+            if beta <= alpha:
+                break
 
-    min_score = math.inf
-    for action in board.actions():
-        board.make_move(*action)
-        score = max_value(board, depth - 1, alpha, beta)
-        board.undo_move(*action)
-        min_score = min(score, min_score)
-        beta = min(score, beta)
-        if beta <= alpha:
-            break
+        return max_score
 
-    return min_score
 
-def x_decision(board, depth):
-    best_score = -math.inf
-    best_action = None
-    alpha = -math.inf
-    beta = math.inf
+    def min_value(self, board, depth, alpha, beta):
+        if board.terminal() or depth == 0:
+            return self.evaluation.evaluate(board)
 
-    for action in board.actions():
-        board.make_move(*action)
-        score = min_value(board, depth - 1, alpha, beta)
-        board.undo_move(*action)
+        min_score = math.inf
+        for action in board.actions():
+            board.make_move(*action)
+            score = self.max_value(board, depth - 1, alpha, beta)
+            board.undo_move(*action)
+            min_score = min(score, min_score)
+            beta = min(score, beta)
+            if beta <= alpha:
+                break
         
-        if score > best_score:
-            best_score = score
-            best_action = action
-        
-        alpha = max(alpha, best_score)
-        
-        if beta <= alpha:
-            break  # Beta cutoff at root level
+        return min_score
 
-    return best_action
 
-def o_decision(board, depth):
-    best_score = math.inf
-    best_action = None
-    alpha = -math.inf
-    beta = math.inf
+    def x_decision(self, board, depth):
+        best_score = -math.inf
+        best_action = None
+        alpha = -math.inf
+        beta = math.inf
 
-    for action in board.actions():
-        board.make_move(*action)
-        score = max_value(board, depth - 1, alpha, beta)
-        board.undo_move(*action)
-        
-        if score < best_score:
-            best_score = score
-            best_action = action
-        
-        beta = min(beta, best_score)
-        
-        if beta <= alpha:
-            break  # Alpha cutoff at root level
+        for action in board.actions():
+            board.make_move(*action)
+            score = self.min_value(board, depth - 1, alpha, beta)
+            board.undo_move(*action)
+            
+            if score > best_score:
+                best_score = score
+                best_action = action
+            
+            alpha = max(alpha, best_score)
+            
+            if beta <= alpha:
+                break
 
-    return best_action
+        return best_action
+
+
+    def o_decision(self, board, depth):
+        best_score = math.inf
+        best_action = None
+        alpha = -math.inf
+        beta = math.inf
+
+        for action in board.actions():
+            board.make_move(*action)
+            score = self.max_value(board, depth - 1, alpha, beta)
+            board.undo_move(*action)
+
+            if score < best_score:
+                best_score = score
+                best_action = action
+            
+            beta = min(beta, best_score)
+            
+            if beta <= alpha:
+                break
+
+        return best_action
 
 
 def random_player(board):
@@ -236,16 +253,17 @@ def random_player(board):
 def play_game(ai_first=True):
     board = NineBoard()
     current_player = 'AI' if ai_first else 'Random'
+    minimax_player = MiniMaxPlayer(EvaluationVersionOne())
 
     while not board.terminal():
         if current_player == 'AI':
-            best_move = x_decision(board, depth=4) if ai_first else o_decision(board, depth=5)
+            best_move = minimax_player.x_decision(board, depth=6) if ai_first else minimax_player.o_decision(board, depth=5)
 
             if best_move:
                 board.make_move(*best_move)
             current_player = 'Random'
         else:
-            best_move = o_decision(board, depth=4) if ai_first else x_decision(board, depth=4)
+            best_move = minimax_player.o_decision(board, depth=6) if ai_first else minimax_player.x_decision(board, depth=4)
 
             if best_move:
                 board.make_move(*best_move)
