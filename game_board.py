@@ -158,11 +158,76 @@ class EvaluationVersionOne:
         
         return score
 
+class EvaluationVersionTwo:
+
+    def __init__(self):
+        self._win_combinations = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Rows
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Columns
+            [0, 4, 8], [2, 4, 6]  # Diagonals
+        ]
+    
+    def evaluate(self, board):
+        score = sum(map(self.evaluate_mini_board, board.boards))
+        return score + self.evaluate_overall_board(board.overall_board)
+
+
+    def evaluate_mini_board(self, board):
+        score = 0
+        for row in self._win_combinations:
+            values = [board[i] for i in row]
+            if values.count(CellState.X) == 3:
+                score += 10
+            elif values.count(CellState.O) == 3:
+                score -= 10
+            elif values.count(CellState.X) == 2 and values.count(CellState.EMPTY) == 1:
+                score += 5
+            elif values.count(CellState.O) == 2 and values.count(CellState.EMPTY) == 1:
+                score -= 5
+            elif values.count(CellState.X) == 1 and values.count(CellState.EMPTY) == 2:
+                score += 2
+            elif values.count(CellState.O) == 1 and values.count(CellState.EMPTY) == 2:
+                score -= 2
+            
+        if board[4] == CellState.X:
+            score += 3  # Reward for X in the center
+        elif board[4] == CellState.O:
+            score -= 3  # Reward for O in the center
+        
+        return score
+
+
+    def evaluate_overall_board(self, overall_board):
+        score = 0
+        for row in self._win_combinations:
+            values = [overall_board[i] for i in row]
+            if values.count(GameState.X_WIN) == 3:
+                score += 100
+            elif values.count(GameState.O_WIN) == 3:
+                score -= 100
+            elif values.count(GameState.X_WIN) == 2 and values.count(GameState.ONGOING) == 1:
+                score += 50
+            elif values.count(GameState.O_WIN) == 2 and values.count(GameState.ONGOING) == 1:
+                score -= 50
+            elif values.count(GameState.X_WIN) == 1 and values.count(GameState.ONGOING) == 2:
+                score += 20
+            elif values.count(GameState.O_WIN) == 1 and values.count(GameState.ONGOING) == 2:
+                score -= 20
+            
+            if overall_board[4] == GameState.X_WIN:
+                score += 10
+            elif overall_board[4] == GameState.O_WIN:
+                score -= 10
+        
+        return score
+
 
 class MiniMaxPlayer:
 
-    def __init__(self, evaluation):
+    def __init__(self, name, evaluation, default_depth=6):
+        self.name = name
         self.evaluation = evaluation
+        self.default_depth = default_depth
 
     def max_value(self, board, depth, alpha, beta):
         if board.terminal() or depth == 0:
@@ -198,7 +263,8 @@ class MiniMaxPlayer:
         return min_score
 
 
-    def x_decision(self, board, depth):
+    def x_decision(self, board):
+        depth = self.default_depth
         best_score = -math.inf
         best_action = None
         alpha = -math.inf
@@ -221,7 +287,8 @@ class MiniMaxPlayer:
         return best_action
 
 
-    def o_decision(self, board, depth):
+    def o_decision(self, board):
+        depth = self.default_depth
         best_score = math.inf
         best_action = None
         alpha = -math.inf
@@ -242,44 +309,47 @@ class MiniMaxPlayer:
                 break
 
         return best_action
+    
+    def make_decision(self, board):
+        return self.x_decision(board) if board.current_player == CellState.X else self.o_decision(board)
 
 
-def random_player(board):
-    actions = board.actions()
-    if actions:
-        board.make_move(*random.choice(actions))
+class RandomPlayer:
+
+    def __init__(self, name):
+        self.name = name
+
+    def make_decision(self, board):
+        actions = board.actions()
+        if actions:
+            return random.choice(actions)
+        else:
+            return None
 
 
-def play_game(ai_first=True):
+def play_game(x_player, o_player):
     board = NineBoard()
-    current_player = 'AI' if ai_first else 'Random'
-    minimax_player = MiniMaxPlayer(EvaluationVersionOne())
+    settings = {GameState.X_WIN: x_player.name, GameState.O_WIN: o_player.name}
 
     while not board.terminal():
-        if current_player == 'AI':
-            best_move = minimax_player.x_decision(board, depth=6) if ai_first else minimax_player.o_decision(board, depth=5)
+        best_move = x_player.make_decision(board) if board.current_player == CellState.X else o_player.make_decision(board)
 
-            if best_move:
-                board.make_move(*best_move)
-            current_player = 'Random'
-        else:
-            best_move = minimax_player.o_decision(board, depth=6) if ai_first else minimax_player.x_decision(board, depth=4)
-
-            if best_move:
-                board.make_move(*best_move)
-            # random_player(board)
-            current_player = 'AI'
+        if best_move:
+            board.make_move(*best_move)
 
         board.display_board()
 
     result = board.result()
-    if result == GameState.X_WIN:
-        print("AI wins!") if ai_first else print("Random wins!")
-    elif result == GameState.O_WIN:
-        print("Random wins!") if ai_first else print("AI wins!")
-    else:
+    if result == GameState.DRAW:
         print("It's a draw!")
+    else:
+        print(f"{settings[result]} wins!")
+    
+    return result
 
 
 if __name__ == '__main__':
-    play_game()
+    minimax_player_2 = MiniMaxPlayer('AI', EvaluationVersionTwo(), 6)
+    minimax_player = MiniMaxPlayer('AI 2', EvaluationVersionOne(), 2)
+    random_player = RandomPlayer('Random')
+    _ = play_game(random_player, minimax_player)
