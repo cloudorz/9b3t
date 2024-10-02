@@ -20,11 +20,12 @@ class GameState(Enum):
         return str(self.value)
 
 class NineBoard:
-    def __init__(self):
+    def __init__(self, lite=False):
         self.boards = [[CellState.EMPTY for _ in range(9)] for _ in range(9)]
         self.overall_board = [GameState.ONGOING for _ in range(9)]
         self.current_player = CellState.X
         self.next_board_index = None
+        self.lite = lite
         self._win_combinations = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Rows
             [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Columns
@@ -86,12 +87,18 @@ class NineBoard:
 
     
     def result(self):
-        for row in self._win_combinations:
-            values = [self.overall_board[i] for i in row]
-            if values.count(GameState.X_WIN) == 3:
+        if self.lite:
+            if GameState.X_WIN in self.overall_board:
                 return GameState.X_WIN
-            elif values.count(GameState.O_WIN) == 3:
+            elif GameState.O_WIN in self.overall_board:
                 return GameState.O_WIN
+        else:
+            for row in self._win_combinations:
+                values = [self.overall_board[i] for i in row]
+                if values.count(GameState.X_WIN) == 3:
+                    return GameState.X_WIN
+                elif values.count(GameState.O_WIN) == 3:
+                    return GameState.O_WIN
         
         if GameState.ONGOING in self.overall_board:
             return GameState.ONGOING
@@ -105,6 +112,7 @@ class NineBoard:
         new_board.overall_board = self.overall_board[:]
         new_board.current_player = self.current_player
         new_board.next_board_index = self.next_board_index
+        new_board.lite = self.lite
 
         return new_board
 
