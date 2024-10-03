@@ -132,7 +132,7 @@ class NineBoard:
         else:
             return GameState.DRAW
     
-    def play_game(self, x_player, o_player):
+    def play_game(self, x_player, o_player, show_board=False):
         x_duration = 0.0
         o_duration = 0.0
         while not self.terminal():
@@ -149,4 +149,7 @@ class NineBoard:
             if best_move:
                 self.make_move(*best_move)
             
+            if show_board:
+                self.display_board()
+
         return self.result(), x_duration, o_duration
