@@ -99,13 +99,17 @@ def test_c_values(opponent, duration=1, num_games=100):
     for c in c_values:
         mcts_player = MCTSPlayer('MCTS', duration, c)
         wins = 0
+        x_total_duration = 0
+        o_total_duration = 0
         for _ in range(num_games):
-            board = NineBoard()
-            result, _, _ = board.play_game(mcts_player, opponent)
+            board = NineBoard(lite=True)
+            result, x_duration, o_duration = board.play_game(mcts_player, opponent)
             if result == GameState.X_WIN:
                 wins += 1
+            x_total_duration += x_duration
+            o_total_duration += o_duration
         results[c] = wins / num_games
-        print(f"MCTS Player {c} wins: {wins}")
+        print(f"MCTS Player {c} wins: {wins}, average duration for X: {x_total_duration / num_games}, average duration for O: {o_total_duration / num_games}")
 
     return results
 
@@ -114,7 +118,7 @@ if __name__ == '__main__':
     import matplotlib.pyplot as plt
 
     random_player = RandomPlayer('Random')
-    results = test_c_values(random_player, 0.1, 100)
+    results = test_c_values(random_player, 0.5, 100)
     print(results)
     # You might want to plot these results
 
