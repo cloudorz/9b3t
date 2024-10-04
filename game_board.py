@@ -2,22 +2,36 @@ from enum import Enum
 import time
 
 
-class CellState(Enum):
-    X = 'X'
-    O = 'O'
-    EMPTY = ' '
+class CellState:
+    X = 5
+    O = 2
+    EMPTY = 0
 
-    def __str__(self):
-        return str(self.value)
+    @staticmethod
+    def to_str(state):
+        if state == CellState.X:
+            return 'X'
+        elif state == CellState.O:
+            return 'O'
+        else:
+            return ' '
 
-class GameState(Enum):
-    ONGOING = ' '
-    X_WIN = 'X'
-    O_WIN = 'O'
-    DRAW = 'D'
+class GameState:
+    ONGOING = 0
+    X_WIN = 5
+    O_WIN = 2
+    DRAW = -16
 
-    def __str__(self):
-        return str(self.value)
+    @staticmethod
+    def to_str(state):
+        if state == GameState.X_WIN:
+            return 'X wins'
+        elif state == GameState.O_WIN:
+            return 'O wins'
+        elif state == GameState.DRAW:
+            return 'Draw'
+        else:
+            return 'Game is still ongoing'
 
 class NineBoard:
     def __init__(self, lite=False):
@@ -76,7 +90,7 @@ class NineBoard:
             for j in range(3):
                 for k in range(3):
                     triple = self.boards[i*3 + k][j*3:j*3+3]
-                    print(f"{[str(v) for v in triple]}", end=" | ")
+                    print(f"{[CellState.to_str(v) for v in triple]}", end=" | ")
                 print()
             print('-' * 50)
         print('=' * 50)
@@ -93,12 +107,10 @@ class NineBoard:
             elif GameState.O_WIN in self.overall_board:
                 return GameState.O_WIN
         else:
-            for row in self._win_combinations:
-                values = [self.overall_board[i] for i in row]
-                if values.count(GameState.X_WIN) == 3:
-                    return GameState.X_WIN
-                elif values.count(GameState.O_WIN) == 3:
-                    return GameState.O_WIN
+            for i, j, k in self._win_combinations:
+                v1, v2, v3 = self.overall_board[i], self.overall_board[j], self.overall_board[k]
+                if v1 == v2 == v3:
+                    return v1
         
         if GameState.ONGOING in self.overall_board:
             return GameState.ONGOING
@@ -120,11 +132,12 @@ class NineBoard:
     def update_mini_board_game_state(self, board_index):
         board = self.boards[board_index]
 
-        for row in self._win_combinations:
-            values = [board[i] for i in row]
-            if values.count(CellState.X) == 3:
+        for i, j, k in self._win_combinations:
+            # values = [board[i].value for i in row]
+            total = board[i] + board[j] + board[k]
+            if total == 15:
                 return GameState.X_WIN
-            elif values.count(CellState.O) == 3:
+            elif total == 6:
                 return GameState.O_WIN
         
         if CellState.EMPTY in board:

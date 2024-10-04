@@ -15,15 +15,15 @@ class EvaluationVersionOne:
 
     def evaluate_mini_board(self, board):
         score = 0
-        for row in self._win_combinations:
-            values = [board[i] for i in row]
-            if values.count(CellState.X) == 3:
+        for i, j, k in self._win_combinations:
+            total = board[i] + board[j] + board[k]
+            if total == 15:
                 score += 10
-            elif values.count(CellState.O) == 3:
+            elif total == 6:
                 score -= 10
-            elif values.count(CellState.X) == 2 and values.count(CellState.EMPTY) == 1:
+            elif total == 10:
                 score += 5
-            elif values.count(CellState.O) == 2 and values.count(CellState.EMPTY) == 1:
+            elif total == 4:
                 score -= 5
         
         return score
@@ -31,15 +31,15 @@ class EvaluationVersionOne:
 
     def evaluate_overall_board(self, overall_board):
         score = 0
-        for row in self._win_combinations:
-            values = [overall_board[i] for i in row]
-            if values.count(GameState.X_WIN) == 3:
+        for i, j, k in self._win_combinations:
+            total = overall_board[i] + overall_board[j] + overall_board[k]
+            if total == 15:
                 score += 100
-            elif values.count(GameState.O_WIN) == 3:
+            elif total == 6:
                 score -= 100
-            elif values.count(GameState.X_WIN) == 2 and values.count(GameState.ONGOING) == 1:
+            elif total == 10:
                 score += 50
-            elif values.count(GameState.O_WIN) == 2 and values.count(GameState.ONGOING) == 1:
+            elif total == 4:
                 score -= 50
         
         return score
@@ -59,19 +59,19 @@ class EvaluationVersionTwo:
 
     def evaluate_mini_board(self, board):
         score = 0
-        for row in self._win_combinations:
-            values = [board[i] for i in row]
-            if values.count(CellState.X) == 3:
+        for i, j, k in self._win_combinations:
+            total = board[i] + board[j] + board[k]
+            if total == 15:
                 score += 10
-            elif values.count(CellState.O) == 3:
+            elif total == 6:
                 score -= 10
-            elif values.count(CellState.X) == 2 and values.count(CellState.EMPTY) == 1:
+            elif total == 10:
                 score += 5
-            elif values.count(CellState.O) == 2 and values.count(CellState.EMPTY) == 1:
+            elif total == 4:
                 score -= 5
-            elif values.count(CellState.X) == 1 and values.count(CellState.EMPTY) == 2:
+            elif total == 5:
                 score += 2
-            elif values.count(CellState.O) == 1 and values.count(CellState.EMPTY) == 2:
+            elif total == 2:
                 score -= 2
             
         if board[4] == CellState.X:
@@ -84,19 +84,19 @@ class EvaluationVersionTwo:
 
     def evaluate_overall_board(self, overall_board):
         score = 0
-        for row in self._win_combinations:
-            values = [overall_board[i] for i in row]
-            if values.count(GameState.X_WIN) == 3:
+        for i, j, k in self._win_combinations:
+            total = overall_board[i] + overall_board[j] + overall_board[k]
+            if total == 15:
                 score += 100
-            elif values.count(GameState.O_WIN) == 3:
+            elif total == 6:
                 score -= 100
-            elif values.count(GameState.X_WIN) == 2 and values.count(GameState.ONGOING) == 1:
+            elif total == 10:
                 score += 50
-            elif values.count(GameState.O_WIN) == 2 and values.count(GameState.ONGOING) == 1:
+            elif total == 4:
                 score -= 50
-            elif values.count(GameState.X_WIN) == 1 and values.count(GameState.ONGOING) == 2:
+            elif total == 5:
                 score += 20
-            elif values.count(GameState.O_WIN) == 1 and values.count(GameState.ONGOING) == 2:
+            elif total == 2:
                 score -= 20
             
             if overall_board[4] == GameState.X_WIN:
