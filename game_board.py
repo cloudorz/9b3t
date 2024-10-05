@@ -65,21 +65,15 @@ class NineBoard:
 
     def actions(self):
         if self.next_board_index is None or \
-           self.overall_board[self.next_board_index] != GameState.ONGOING:
-            pairs = []
-            for i in range(9):
-                if self.overall_board[i] == GameState.ONGOING:
-                    for j in range(9):
-                        if self.boards[i][j] == CellState.EMPTY:
-                            pairs.append((i, j))
-            return pairs
+            self.overall_board[self.next_board_index] != GameState.ONGOING:
+            return [(i, j) for i in range(9) 
+                    if self.overall_board[i] == GameState.ONGOING
+                    for j in range(9) 
+                    if self.boards[i][j] == CellState.EMPTY]
         else:
-            actions = []
-            for j in range(9):
-                if self.boards[self.next_board_index][j] == CellState.EMPTY:
-                    actions.append((self.next_board_index, j))
-            return actions
-         
+            return [(self.next_board_index, j) for j in range(9) 
+                    if self.boards[self.next_board_index][j] == CellState.EMPTY]
+
     
     def update_game_state(self, board_index):
         self.overall_board[board_index] = self.update_mini_board_game_state(board_index)
@@ -119,13 +113,11 @@ class NineBoard:
 
 
     def copy(self):
-        new_board = NineBoard()
-        new_board.boards = [self.boards[i][:] for i in range(9)]
+        new_board = NineBoard(lite=self.lite)
+        new_board.boards = [board[:] for board in self.boards]
         new_board.overall_board = self.overall_board[:]
         new_board.current_player = self.current_player
         new_board.next_board_index = self.next_board_index
-        new_board.lite = self.lite
-
         return new_board
 
 
@@ -133,7 +125,6 @@ class NineBoard:
         board = self.boards[board_index]
 
         for i, j, k in self._win_combinations:
-            # values = [board[i].value for i in row]
             total = board[i] + board[j] + board[k]
             if total == 15:
                 return GameState.X_WIN
