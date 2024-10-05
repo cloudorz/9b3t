@@ -1,5 +1,5 @@
 import math
-from evaluation import EvaluationVersionOne, EvaluationVersionTwo
+from evaluation import Evaluation
 from game_board import CellState, NineBoard, GameState
 from random_player import RandomPlayer
 
@@ -98,7 +98,7 @@ class MiniMaxPlayer:
 
 if __name__ == '__main__':
     wins = 0
-    minimax_player = MiniMaxPlayer('AI', EvaluationVersionOne(), 4)
+    minimax_player = MiniMaxPlayer('AI', Evaluation(Evaluation.CONFIG_ONE), 4)
     random_player = RandomPlayer('Random')
     x_total_duration = 0
     o_total_duration = 0

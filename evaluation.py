@@ -1,107 +1,87 @@
+import functools
 from game_board import GameState, CellState
 
-class EvaluationVersionOne:
-    def __init__(self):
+class Evaluation:
+    CONFIG_ONE = {
+        'score_map': {
+            15: 10,
+            6: -10,
+            10: 5,
+            4: -5,
+        },
+        'overall_score_map': {
+            15: 100,
+            6: -100,
+            10: 50,
+            4: -50,
+        }
+    }
+    CONFIG_TWO = {
+        'score_map': {
+            15: 10,
+            6: -10,
+            10: 5,
+            4: -5,
+            5: 2,
+            2: -2,
+        },
+        'overall_score_map': {
+            15: 100,
+            6: -100,
+            10: 50,
+            4: -50,
+            5: 20,
+            2: -20,
+        }
+    }
+
+    def __init__(self, config, bonus=False):
         self._win_combinations = [
             [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Rows
             [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Columns
             [0, 4, 8], [2, 4, 6]  # Diagonals
         ]
+        self.score_map = config['score_map']
+        self.overall_score_map = config['overall_score_map']
+        self.bonus = bonus
+
 
     def evaluate(self, board):
-        score = sum(map(self.evaluate_mini_board, board.boards))
-        return score + self.evaluate_overall_board(board.overall_board)
+        score = 0
+        for mini_board in board.boards:
+            score += self.evaluate_mini_board(tuple(mini_board))
+            
+        return score + self.evaluate_overall_board(tuple(board.overall_board))
 
 
+    @functools.lru_cache(maxsize=None)
     def evaluate_mini_board(self, board):
-        score = 0
-        for i, j, k in self._win_combinations:
-            total = board[i] + board[j] + board[k]
-            if total == 15:
-                score += 10
-            elif total == 6:
-                score -= 10
-            elif total == 10:
-                score += 5
-            elif total == 4:
-                score -= 5
-        
+        score = self._evaluate_board(board, self.score_map)
+
+        if self.bonus:
+            if board[4] == CellState.X:
+                score += 3
+            elif board[4] == CellState.O:
+                score -= 3
+
         return score
-
-
-    def evaluate_overall_board(self, overall_board):
-        score = 0
-        for i, j, k in self._win_combinations:
-            total = overall_board[i] + overall_board[j] + overall_board[k]
-            if total == 15:
-                score += 100
-            elif total == 6:
-                score -= 100
-            elif total == 10:
-                score += 50
-            elif total == 4:
-                score -= 50
-        
-        return score
-
-class EvaluationVersionTwo:
-    def __init__(self):
-        self._win_combinations = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8],  # Rows
-            [0, 3, 6], [1, 4, 7], [2, 5, 8],  # Columns
-            [0, 4, 8], [2, 4, 6]  # Diagonals
-        ]
     
-    def evaluate(self, board):
-        score = sum(map(self.evaluate_mini_board, board.boards))
-        return score + self.evaluate_overall_board(board.overall_board)
 
-
-    def evaluate_mini_board(self, board):
+    def _evaluate_board(self, board, score_map):
         score = 0
         for i, j, k in self._win_combinations:
-            total = board[i] + board[j] + board[k]
-            if total == 15:
-                score += 10
-            elif total == 6:
-                score -= 10
-            elif total == 10:
-                score += 5
-            elif total == 4:
-                score -= 5
-            elif total == 5:
-                score += 2
-            elif total == 2:
-                score -= 2
-            
-        if board[4] == CellState.X:
-            score += 3  # Reward for X in the center
-        elif board[4] == CellState.O:
-            score -= 3  # Reward for O in the center
-        
+            score += score_map.get(board[i] + board[j] + board[k], 0)
+
         return score
 
 
+    @functools.lru_cache(maxsize=None)
     def evaluate_overall_board(self, overall_board):
-        score = 0
-        for i, j, k in self._win_combinations:
-            total = overall_board[i] + overall_board[j] + overall_board[k]
-            if total == 15:
-                score += 100
-            elif total == 6:
-                score -= 100
-            elif total == 10:
-                score += 50
-            elif total == 4:
-                score -= 50
-            elif total == 5:
-                score += 20
-            elif total == 2:
-                score -= 20
-            
+        score = self._evaluate_board(overall_board, self.overall_score_map)
+        if self.bonus:
             if overall_board[4] == GameState.X_WIN:
                 score += 10
             elif overall_board[4] == GameState.O_WIN:
                 score -= 10
-        
+
         return score
