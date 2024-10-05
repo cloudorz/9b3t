@@ -80,7 +80,8 @@ class MCTSPlayer:
         
         if result == GameState.DRAW:
             return 0.5
-        elif board.current_player == CellState.O and result == GameState.X_WIN or board.current_player == CellState.X and result == GameState.O_WIN:
+        elif board.current_player == CellState.O and result == GameState.X_WIN or \
+            board.current_player == CellState.X and result == GameState.O_WIN:
             return 1
         else:
             return 0
@@ -109,7 +110,9 @@ def test_c_values(opponent, duration=1, num_games=100):
             x_total_duration += x_duration
             o_total_duration += o_duration
         results[c] = wins / num_games
-        print(f"MCTS Player {c} wins: {wins}, average duration for X: {x_total_duration / num_games}, average duration for O: {o_total_duration / num_games}")
+        print(f"MCTS Player {c} wins: {wins}")
+        print(f"Average duration for X: {x_total_duration / num_games}")
+        print(f"Average duration for O: {o_total_duration / num_games}")
 
     return results
 
