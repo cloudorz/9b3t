@@ -8,6 +8,24 @@ from itertools import product
 import pandas as pd
 from human import HumanPlayer
 
+
+def create_player_list(limit=None):
+    players = [
+        RandomPlayer('Random'),
+        MiniMaxPlayer('AI D4E1', Evaluation(Evaluation.CONFIG_ONE), 4),
+        MiniMaxPlayer('AI D4E2', Evaluation(Evaluation.CONFIG_TWO, True), 4),
+        MiniMaxPlayer('AI D6E1', Evaluation(Evaluation.CONFIG_ONE), 6),
+        MiniMaxPlayer('AI D6E2', Evaluation(Evaluation.CONFIG_TWO, True), 6),
+        MiniMaxPlayer('AI D8E1', Evaluation(Evaluation.CONFIG_ONE), 8),
+        MiniMaxPlayer('AI D8E2', Evaluation(Evaluation.CONFIG_TWO, True), 8),
+        MCTSPlayer('MCTS 0.5s', 0.5),
+        MCTSPlayer('MCTS 1.0s', 1.0),
+        MCTSPlayer('MCTS 2.0s', 2.0),
+    ]
+    if limit is not None:
+        return players[:limit]
+    return players
+
 def play_single_game(x_player, o_player, lite):
     board = NineBoard(lite)
     result, x_duration, o_duration = board.play_game(x_player, o_player)
@@ -18,17 +36,24 @@ def play_games_parallel(x_player, o_player, num_games, lite):
         results = pool.starmap(play_single_game, 
                                [(x_player, o_player, lite)] * num_games)
     
-    wins = sum(result[0] == GameState.X_WIN for result in results)
-    x_total_duration = sum(result[1] for result in results)
-    o_total_duration = sum(result[2] for result in results)
+    x_wins = 0
+    o_wins = 0
+    x_total_duration = 0
+    o_total_duration = 0
+    for result, x_duration, o_duration in results:
+        if result == GameState.X_WIN:
+            x_wins += 1
+        elif result == GameState.O_WIN:
+            o_wins += 1
+        x_total_duration += x_duration
+        o_total_duration += o_duration
     
-    win_rate = wins / num_games
     average_x_duration = x_total_duration / num_games
     average_o_duration = o_total_duration / num_games
     
-    return win_rate, average_x_duration, average_o_duration
+    return (x_wins, o_wins), average_x_duration, average_o_duration
 
-def host_competition(participants, num_games=100, lite=False):
+def host_competition(participants, num_games, lite):
     total_results = []
     player_combinations = list(product(participants, repeat=2))
     
@@ -36,31 +61,21 @@ def host_competition(participants, num_games=100, lite=False):
         result = play_games_parallel(x_player, o_player, num_games, lite)
         total_results.append(result)
         
-        win_rate, average_x_duration, average_o_duration = result
-        print(f"{x_player.name} vs {o_player.name}: Win Rate: {win_rate}")
+        (x_win, o_win), average_x_duration, average_o_duration = result
+        print(f"{x_player.name} vs {o_player.name}: {x_win} - {o_win}")
         print(f"X Duration: {average_x_duration}")
         print(f"O Duration: {average_o_duration}")
         print()
     
     names = [p.name for p in participants]
-    return (names, [total_results[i:i+len(participants)] for i in range(0, len(total_results), len(participants))])
+    len_participants = len(participants)
+    len_total_results = len(total_results)
+    return (names, [total_results[i:i+len_participants] for i in range(0, len_total_results, len_participants)])
 
 
-def run_competition(lite=False):
-    participants = [
-        RandomPlayer('Random'),
-        MiniMaxPlayer('AI Eval 1_4', Evaluation(Evaluation.CONFIG_ONE), 4),
-        MiniMaxPlayer('AI Eval 2_4', Evaluation(Evaluation.CONFIG_TWO, True), 4),
-        MiniMaxPlayer('AI Eval 1_6', Evaluation(Evaluation.CONFIG_ONE), 6),
-        MiniMaxPlayer('AI Eval 2_6', Evaluation(Evaluation.CONFIG_TWO, True), 6),
-        MiniMaxPlayer('AI Eval 1_8', Evaluation(Evaluation.CONFIG_ONE), 8),
-        MiniMaxPlayer('AI Eval 2_8', Evaluation(Evaluation.CONFIG_TWO, True), 8),
-        MCTSPlayer('MCTS 0.5s', 0.5),
-        # MCTSPlayer('MCTS 1.0s', 1.0),
-        # MCTSPlayer('MCTS 2.0s', 2.0),
-    ]
-
-    names, total_results = host_competition(participants, 100, lite)
+def run_competition(lite=False, turns=100):
+    participants = create_player_list(8)
+    names, total_results = host_competition(participants, turns, lite)
 
     # Create a figure and a set of subplots
     df = pd.DataFrame(total_results, index=names, columns=names)
@@ -68,18 +83,7 @@ def run_competition(lite=False):
 
 
 def play_with_human(lite=False):
-    players = [
-        RandomPlayer('Random'),
-        MiniMaxPlayer('AI Eval 1_4', Evaluation(Evaluation.CONFIG_ONE), 4),
-        MiniMaxPlayer('AI Eval 2_4', Evaluation(Evaluation.CONFIG_TWO, True), 4),
-        MiniMaxPlayer('AI Eval 1_6', Evaluation(Evaluation.CONFIG_ONE), 6),
-        MiniMaxPlayer('AI Eval 2_6', Evaluation(Evaluation.CONFIG_TWO, True), 6),
-        MiniMaxPlayer('AI Eval 1_8', Evaluation(Evaluation.CONFIG_ONE), 8),
-        MiniMaxPlayer('AI Eval 2_8', Evaluation(Evaluation.CONFIG_TWO, True), 8),
-        MCTSPlayer('MCTS 0.5s', 0.5),
-        MCTSPlayer('MCTS 1.0s', 1.0),
-        MCTSPlayer('MCTS 2.0s', 2.0),
-    ]
+    players = create_player_list()
     print("Choose a player to play against:")
     for i, player in enumerate(players):
         print(f"{i+1}. {player.name}")
@@ -103,18 +107,7 @@ def play_with_human(lite=False):
 
 
 def play_with_two_AIs(lite=False):
-    players = [
-        RandomPlayer('Random'),
-        MiniMaxPlayer('AI Eval 1_4', Evaluation(Evaluation.CONFIG_ONE), 4),
-        MiniMaxPlayer('AI Eval 2_4', Evaluation(Evaluation.CONFIG_TWO, True), 4),
-        MiniMaxPlayer('AI Eval 1_6', Evaluation(Evaluation.CONFIG_ONE), 6),
-        MiniMaxPlayer('AI Eval 2_6', Evaluation(Evaluation.CONFIG_TWO, True), 6),
-        MiniMaxPlayer('AI Eval 1_8', Evaluation(Evaluation.CONFIG_ONE), 8),
-        MiniMaxPlayer('AI Eval 2_8', Evaluation(Evaluation.CONFIG_TWO, True), 8),
-        MCTSPlayer('MCTS 0.5s', 0.5),
-        MCTSPlayer('MCTS 1.0s', 1.0),
-        MCTSPlayer('MCTS 2.0s', 2.0),
-    ]
+    players = create_player_list()
     print("Choose two players to play against each other:")
     for i, player in enumerate(players):
         print(f"{i+1}. {player.name}")
@@ -150,6 +143,10 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--lite',
                         action='store_true',
                         help='Play a lite game with winning condition on any board in nine boards')
+    parser.add_argument('-t', '--turns',
+                        type=int,
+                        default=100,
+                        help='Number of turns to play in competition mode')
 
     args = parser.parse_args()
 
@@ -158,4 +155,4 @@ if __name__ == '__main__':
     elif args.mode == 'AI':
         play_with_two_AIs(args.lite)
     elif args.mode == 'competition':
-        run_competition(args.lite)
+        run_competition(args.lite, args.turns)
