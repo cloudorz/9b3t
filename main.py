@@ -1,11 +1,13 @@
+import multiprocessing as mp
+from itertools import product
+import pandas as pd
+from datetime import datetime
+
 from game_board import NineBoard, GameState
 from minimax import MiniMaxPlayer
 from mcts import MCTSPlayer
 from evaluation import Evaluation
 from random_player import RandomPlayer
-import multiprocessing as mp
-from itertools import product
-import pandas as pd
 from human import HumanPlayer
 
 
@@ -79,7 +81,10 @@ def run_competition(lite=False, turns=100):
 
     # Create a figure and a set of subplots
     df = pd.DataFrame(total_results, index=names, columns=names)
-    print(df.to_csv())
+    timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+    file_name = f'data/results_compeition_a1_lite_{timestamp}.csv' if lite \
+                else f'data/results_compeition_a1_{timestamp}.csv'
+    df.to_csv(file_name, index=False)
 
 
 def play_with_human(lite=False):
