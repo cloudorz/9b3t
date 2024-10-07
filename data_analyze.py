@@ -55,14 +55,17 @@ def analyze_glicko2(data, total_games=100):
     ratings = [player_obj.rating for player_obj in glicko_players.values()]
     player_names = list(glicko_players.keys())
     plt.figure(figsize=(10, 6))
-    plt.bar(player_names, ratings, color='b')
+    bars = plt.bar(player_names, ratings, color='b')
     plt.axhline(y=1500, color='r', linestyle='--')  # Horizontal line at y=1500
-    plt.title('Skill level of participants (Glicko-2 Ratings)')
-    plt.xlabel('Participants')
+    plt.title('Skill level of agents (using Glicko-2 ratings system)')
+    # plt.xlabel('Agents')
     plt.ylabel('Rating')
+
+    for bar in bars:
+        plt.text(bar.get_x() + bar.get_width()/2, bar.get_height(), f'{bar.get_height():.2f}', ha='center', va='bottom')
     plt.show()
 
-    # Extract the data from the csv file as {(player 1, player 2): (x_wins, o_wins)}
+
 def show_matchup_data(data):
     player_names = data.columns[1:]
     matchup_data = [[extract_wins(player_row[opponent]) for opponent in data.columns[1:]] for _, player_row in data.iterrows()]
@@ -71,7 +74,7 @@ def show_matchup_data(data):
     df = pd.DataFrame(matchup_data, index=player_names, columns=player_names)
     
     # Display the matchup data as a table
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(12, 3))
     plt.axis('off')
     plt.title('Matchup Data Table')
     
@@ -84,7 +87,7 @@ def show_matchup_data(data):
     
     # Adjust table properties for better readability
     table.auto_set_font_size(False)
-    table.set_fontsize(9)
+    table.set_fontsize(10)
     table.scale(1.2, 1.2)
     
     # Add color coding based on win ratios
@@ -100,6 +103,7 @@ def show_matchup_data(data):
     
     plt.tight_layout()
     plt.show()
+
 
 def show_compared_data(data, baseline_name, total_games=100):
     player_names = data.columns[1:]
@@ -130,8 +134,8 @@ def show_compared_data(data, baseline_name, total_games=100):
     # Plotting the baseline data with win rates displayed on each bar
     plt.figure(figsize=(10, 6))
     bars = plt.bar(baseline.keys(), baseline.values(), color='skyblue')
-    plt.title(f'Baseline Win Rates ({baseline_name})')
-    plt.xlabel('Opponent')
+    plt.title(f'{baseline_name} as a baseline')
+    # plt.xlabel('Opponent')
     plt.ylabel('Win Rate')
     plt.xticks(rotation=45)
     plt.tight_layout()
@@ -162,9 +166,9 @@ def show_durations(data, total_games=100):
                 durations[o_name] = (saved_duration + o_duration) / 2
 
     plt.figure(figsize=(10, 6))
-    bars = plt.bar(durations.keys(), durations.values(), color='skyblue')
-    plt.title('Average time per game')
-    plt.xlabel('Participants')
+    bars = plt.bar(durations.keys(), durations.values(), color='lightcoral')
+    plt.title('Average time agents spend per game')
+    # plt.xlabel('Participants')
     plt.ylabel('Time (s)')
 
     for bar in bars:
