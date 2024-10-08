@@ -260,7 +260,6 @@ Chart 5: Baseline test between other players and AI D8E2
 ![baseline_d8e2](./images/baseline_d8e2.png)
 
 # Discussion
-~~## Strategic Insights~~
 ### The strengths and weaknesses of each approach:
 
 1. Minimax with Alpha-Beta Pruning, depth-limited search and evaluation function:
@@ -275,6 +274,8 @@ Weaknesses:
 - Performance heavily dependent on the quality of the evaluation function
 - May struggle in very complex game states due to branch factor and depth limitations
 
+For instance, AI D8E2 is the highest overall performance, demonstrating the effectiveness of deeper search and a more sophisticated evaluation function. Whereas it has the longest computation time, which could be problematic in time-sensitive scenarios. The deeper search depth allows the agent to look further ahead in the game tree, considering more potential future states. This enables it to make more strategic decisions that account for long-term consequences. And it also comes along with an advanced evaluation function (Evaluation Function 2) that allows AI D8E2 to outperform other agents consistently. Evaluation Function 2 consistently outperformed Evaluation Function 1 at the same depth, and even better than deeper depth Minimax AI with Evaluation function 1, showing the more advanced evaluation can somewhat compensate for the lack of search depth.
+
 2. Monte Carlo Tree Search (MCTS):
 
 Strengths:
@@ -287,49 +288,18 @@ Weaknesses:
 - Performance may be inconsistent due to its probabilistic nature
 - Effectiveness can depend on the number of simulations, which is limited by time constraints
 
-Specific observations:
+For instance, MCTS 0.5s is consistent time per game due to fixed time limit, but underperformed compared to Minimax strategies, possibly due to limited simulation time or the probabilistic nature of MCTS.
 
-1. Minimax (AI D8E2):
-Strength: Highest overall performance, demonstrating the effectiveness of deeper search and a more sophisticated evaluation function.
-Weakness: Longest computation time, which could be problematic in time-sensitive scenarios.
+There are also some unexpected findings, AI D4E1 managed to draw all games against AI D8E2, which is a bit unexpected, because from the skill rating chart, AI D8E2 should outperform AI D4E1. MCTS 0.5s was outperformed by all the Minimax implementations in this experiment, possibly due to the limited simulation time (0.5s) not allowing for sufficient exploration.
 
-3. MCTS 0.5s:
-Strength: Consistent time per game due to fixed time limit.
-Weakness: Underperformed compared to Minimax strategies, possibly due to limited simulation time.
-
-4. Evaluation Function 2:
-Strength: Consistently outperformed Evaluation Function 1 at the same depth, and even better than deeper depth Minimax AI wiht Evaluation function 1, showing the importance of a good evaluation function.
-Weakness: The improvement may not be as significant at lower depths.
-
-These observations highlight the trade-offs between computational complexity and performance in game AI strategies. Minimax with alpha-beta pruning shows strong performance but at the cost of longer computation times, while MCTS offers a different approach that could potentially be improved with more simulation time or better implementation. The results also emphasize the critical role of both search depth and evaluation function quality in Minimax performance.
-
-## Interpretation of Results
-- Analysis of why certain agents performed better in specific scenarios
-Minimax with deeper search depths (e.g., AI D8E2):
-Better overall performance: The deeper search depth allows the agent to look further ahead in the game tree, considering more potential future states. This enables it to make more strategic decisions that account for long-term consequences.
-Dominance against other players: The combination of deep search and an advanced evaluation function (E2) allows AI D8E2 to outperform other agents consistently. It can anticipate and counter opponents' strategies more effectively.
-
-Evaluation Function Comparison (E1 vs E2):
-Consistent improvement: Across all depths, the more advanced evaluation function (E2) outperformed the basic one (E1), highlighting the importance of a well-designed evaluation function in Minimax algorithms.
-Diminishing returns at higher depths: The improvement from E1 to E2 seems less pronounced at higher depths, suggesting that deeper searches can somewhat compensate for a less sophisticated evaluation function.
+These observations highlight that Minimax with alpha-beta pruning shows strong performance but at the cost of longer computation times, while MCTS offers a different approach that could potentially be improved with more simulation time or better implementation. The results emphasize that while deeper searches generally yield better results, a better evaluation function can significantly enhance performance, even at lower depths. The underperformance of MCTS 0.5s in this scenario also suggests that the effectiveness of different AI approaches can vary depending on the specific characteristics of the game and the implementation details.
 
 
-- Unexpected findings or interesting patterns
-Unexpected Results:
-MCTS was outperformed by most Minimax implementations, possibly due to the limited simulation time (0.5s) not allowing for sufficient exploration of the game tree in this complex game.
+## Limitations~~ and Potential Improvements~~
 
-Surprisingly, AI D4E1 managed to draw all games against AI D8E2
-Minimax (AI D4E1):
-Strength: Surprisingly effective against higher-depth Minimax (drew all games against AI D8E2).
-Weakness: Generally lower performance compared to deeper searches or more advanced evaluation functions.
+There are some limitations of the experiment, the performance of Minimax depends on the quality of the evaluation function, for Ultimate Tic-Tac-Toe, there's no simple and effective evaluation function (Ultimate tic-tac-toe. n.d.). The evaluation functions listed in the report might be not good enough to estimate the board state. The deterministic nature of Minimax might have led to repeated game patterns, especially in matchups between Minimax agents. This might explain phenomena like the 100 draws between AI D4E1 and AI D8E2. The specific implementation details of MCTS (e.g., exploration constant, rollout policy) can significantly affect its performance. Different tuning might lead to better results.
 
-
-The results emphasize that while deeper searches generally yield better results, a well-designed evaluation function can significantly enhance performance, even at lower depths. The underperformance of MCTS in this scenario also suggests that the effectiveness of different AI approaches can vary depending on the specific characteristics of the game and the implementation details.
-
-
-There are some limitations of the results from the report, the performance of Minimax depends on the quality of the evaluation function. For Ultimate Tic-Tac-Toe, there's no simple and effective evaluation function that can evaluate the board state accurately(Ultimate tic-tac-toe. n.d.). The evaluation functions listed in the report might be not good enough to estimate the board state. The deterministic nature of Minimax might have led to repeated game patterns, especially in matchups between Minimax agents. This could explain phenomena like the 100 draws between AI D4E1 and AI D8E2. The specific implementation details of MCTS (e.g., exploration constant, rollout policy) can significantly affect its performance. Different tuning might lead to better results.
-
-There also are some improvements could be made, adding more evaluation rules, like, opponent threats assessing the number of immediate threats, control of crucial sub-boards that affect future move directions. Implementing move ordering heuristics to improve alpha-beta pruning efficiency.
+~~There also are some improvements could be made, adding more evaluation rules, like, opponent threats assessing the number of immediate threats, control of crucial sub-boards that affect future move directions. Implementing move ordering heuristics to improve alpha-beta pruning efficiency.~~
 
 
 # Conclusion
