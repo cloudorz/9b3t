@@ -19,12 +19,11 @@ The primary objectives of this project are:
    - Minimax algorithm with complete search (not implemented due to the large search space)
    - Minimax algorithm with alpha-beta pruning and depth-limited search including evaluation functions ~~comparing among different depths, two different evaluation strategies~~
    - Monte Carlo Tree Search (MCTS)
-3. To create a random player as a baseline for performance comparison.
+3. To create a random agent as a baseline for performance comparison.
 4. To conduct a comprehensive evaluation of these AI agents, analyzing their performance in terms of win rates and computational efficiency.
 5. To gain insights into the strengths and weaknesses of different AI approaches in the context of Ultimate Tic-Tac-Toe.
 
 Through this project, we aim to explore the application of classical AI techniques to a complex game.
-
 
 # Agent Design:
 I choose minimax algorithm with alpha-beta pruning, depth-limited search and evaluation function to implement the agent. The reason for not choose minimax with complete search is that it is infeasible to implement for Ultimate Tic-Tac-Toe due to the game's complexity, expecially the branching factor in the early moves, which is too high, and the number of possible game states is too large to explore [TODO: reference to the calculation of the complexity]. And I also choose MCTS method for comparison. For baseline test, I choose random agent. A human agent is also implemented just for fun.
@@ -208,18 +207,18 @@ function BACKPROPAGATE(node, result)
 ### Experiment Setup
 The experiment is conducted in the same environment, Apple M1 Max, 10 CPU cores, 64GB RAM. 100 games for each matchup, each matchup will switch the role of X and O and play another 100 games. The max depth of minimax is set to 8 and the time limit for MCTS is set to 0.5 second, all due to the performance consideration.
 
-There are 8 players listed below will be evaluated:
+There are 8 agents listed below will be evaluated:
 
-| Name | Type | Settings | Info |
-| --- | --- | --- | --- |
-| Random | Random player | - | - |
-| AI D4E1 | Minimax | Depth: 4, Evaluation: 1 | - |
-| AI D4E2 | Minimax | Depth: 4, Evaluation: 2 | - |
-| AI D6E1 | Minimax | Depth: 6, Evaluation: 1 | - |
-| AI D6E2 | Minimax | Depth: 6, Evaluation: 2 | - |
-| AI D8E1 | Minimax | Depth: 8, Evaluation: 1 | - |
-| AI D8E2 | Minimax | Depth: 8, Evaluation: 2 | - |
-| MCTS 0.5s | MCTS | Time limit: 0.5s | - |
+| Name | Type | Settings |
+| --- | --- | --- |
+| Random | Random| - |
+| AI D4E1 | Minimax| Depth: 4, Evaluation: 1 |
+| AI D4E2 | Minimax | Depth: 4, Evaluation: 2 |
+| AI D6E1 | Minimax | Depth: 6, Evaluation: 1 |
+| AI D6E2 | Minimax | Depth: 6, Evaluation: 2 |
+| AI D8E1 | Minimax | Depth: 8, Evaluation: 1 |
+| AI D8E2 | Minimax | Depth: 8, Evaluation: 2 |
+| MCTS 0.5s | MCTS | Time limit: 0.5s |
 
 
 ### Results and Analysis
@@ -231,7 +230,7 @@ The win rate is calculated by the number of games won plus half the number of ga
 win_rate = (wins + 0.5 * draws) / total_games
 ```
 
-The data shown in [chart 1] is calculated by using Glicko-2 rating system, we can see that AI D8E2 (Minimax with depth 8 and evaluation function 2) has the highest rating at 1856.78, indicating it's the strongest agent overall. MCTS 0.5s has one of the lower ratings (1230.23) among the AI agents, only outperforming the Random agent (1026.48). There's a clear progression in strength as the depth increases for Minimax players (D4 < D6 < D8) in the same evaluation function. Evaluation function 2 consistently outperforms evaluation function 1 for the same depth, even significantly better than deeper depth Minimax AI, for the case AI D4E2 is way better AI D6E1 with rating 1678.88 and 1525.59 respectively, and AI D6E2 (1717.99) is slightly bit better than AI D8E1 (1712.86). The Random agent has the lowest rating, as expected. (The red dash line at 1500 is the initial rating of each agent)
+The data shown in [chart 1] is calculated by using Glicko-2 rating system, we can see that AI D8E2 (Minimax with depth 8 and evaluation function 2) has the highest rating at 1856.78, indicating it's the strongest agent overall. MCTS 0.5s has one of the lower ratings (1230.23) among the AI agents, only outperforming the Random agent (1026.48). There's a clear progression in strength as the depth increases for Minimax agents (D4 < D6 < D8) in the same evaluation function. Evaluation function 2 consistently outperforms evaluation function 1 for the same depth, even significantly better than deeper depth Minimax AI, for the case AI D4E2 is way better AI D6E1 with rating 1678.88 and 1525.59 respectively, and AI D6E2 (1717.99) is slightly bit better than AI D8E1 (1712.86). The Random agent has the lowest rating, as expected. (The red dash line at 1500 is the initial rating of each agent)
 
 From [chart 2], we can see that as expected, the computation time increases exponentially with the depth of the Minimax algorithm. AI D8E2 takes the longest time per game at 45.60s, which is consistent with its high performance.  MCTS 0.5s with 13.86s has a consistent time per game, likely due to its fixed time limit. The Random agent has the shortest time per game near to 0s, as it doesn't perform any complex calculations.
 
@@ -295,7 +294,7 @@ There are also some unexpected findings, AI D4E1 managed to draw all games again
 These observations highlight that Minimax with alpha-beta pruning shows strong performance but at the cost of longer computation times, while MCTS offers a different approach that could potentially be improved with more simulation time or better implementation. The results emphasize that while deeper searches generally yield better results, a better evaluation function can significantly enhance performance, even at lower depths. The underperformance of MCTS 0.5s in this scenario also suggests that the effectiveness of different AI approaches can vary depending on the specific characteristics of the game and the implementation details.
 
 
-## Limitations~~ and Potential Improvements~~
+## Limitations ~~and Potential Improvements~~
 
 There are some limitations of the experiment, the performance of Minimax depends on the quality of the evaluation function, for Ultimate Tic-Tac-Toe, there's no simple and effective evaluation function (Ultimate tic-tac-toe. n.d.). The evaluation functions listed in the report might be not good enough to estimate the board state. The deterministic nature of Minimax might have led to repeated game patterns, especially in matchups between Minimax agents. This might explain phenomena like the 100 draws between AI D4E1 and AI D8E2. The specific implementation details of MCTS (e.g., exploration constant, rollout policy) can significantly affect its performance. Different tuning might lead to better results.
 
@@ -304,7 +303,7 @@ There are some limitations of the experiment, the performance of Minimax depends
 
 # Conclusion
 
-Minimax with alpha-beta pruning, depth-limited search and evaluation function demonstrated superior performance, especially at greater search depths and with more sophisticated evaluation functions. The quality of the evaluation function significantly impacts performance, often compensating for shallower search depths. MCTS, while effective against random players, underperformed compared to Minimax strategies in this implementation. Deeper Minimax searches generally yielded better results but at the cost of exponentially increasing computation time. Unexpected results, such as the consistent draws between AI D4E1 and AI D8E2, highlight the complex nature of strategy in Ultimate Tic-Tac-Toe.
+Minimax with alpha-beta pruning, depth-limited search and evaluation function demonstrated superior performance, especially at greater search depths and with more sophisticated evaluation functions. The quality of the evaluation function significantly impacts performance, often compensating for shallower search depths. MCTS, while effective against random agents, underperformed compared to Minimax strategies in this implementation. Deeper Minimax searches generally yielded better results but at the cost of exponentially increasing computation time. Unexpected results, such as the consistent draws between AI D4E1 and AI D8E2, highlight the complex nature of strategy in Ultimate Tic-Tac-Toe.
 
 ## Implications for AI in Complex Game Environments
 
