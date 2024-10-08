@@ -209,6 +209,7 @@ The experiment is conducted in the same environment, Apple M1 Max, 10 CPU cores,
 
 There are 8 agents listed below will be evaluated:
 
+[Table 5]
 | Name | Type | Settings |
 | --- | --- | --- |
 | Random | Random| - |
