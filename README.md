@@ -1,59 +1,102 @@
-## Ultimate Tic-Tac-Toe 
+# Ultimate Tic-Tac-Toe
 
-#### An instruction on how to use this Ultimate Tic Tac Toe program:
+A comprehensive implementation of Ultimate Tic-Tac-Toe (also known as Nine Board Tic-Tac-Toe) with multiple AI agents including Minimax with alpha-beta pruning and Monte Carlo Tree Search (MCTS).
 
-Before running the code, make sure you have installed the following packages:
-```
+## About the Game
+
+Ultimate Tic-Tac-Toe is a strategic variant of the classic game, played on a 3×3 grid of tic-tac-toe boards. Players must win individual boards to claim positions on the main board, with the ultimate goal of winning three boards in a row on the main grid.
+
+## Features
+
+- **Multiple AI Strategies**: Random, Minimax (various depths), and MCTS agents
+- **Human vs AI Mode**: Play against sophisticated AI opponents
+- **AI vs AI Mode**: Watch AI agents compete against each other  
+- **Competition Mode**: Run tournaments between multiple AI agents
+- **Performance Analysis**: Built-in tools for analyzing game results and AI performance
+- **Lite Mode**: Alternative winning conditions for faster gameplay
+
+[Detailed report](./9b3t_report.md) is available, including game rules, AI strategies, and performance analysis.
+
+## Installation
+
+Ensure you have Python 3.6+ installed, then install the required dependencies:
+
+```bash
 pip3 install pandas matplotlib glicko2
 ```
 
-To run the program, you need to use the command line and provide specific arguments. The program offers three different modes of play: human vs AI, AI vs AI, and a competition mode. Here's how to use each mode:
+## Usage
 
-1. Human vs AI mode:
-   ```
-   python3 main.py -m human [-l]
-   ```
-   - The `-m human` argument sets the mode to human vs AI.
-   - The optional `-l` flag enables the "lite" version of the game.
-   - After running this command, you'll be prompted to choose an AI opponent from a list.
+The program offers three different modes of operation:
 
-2. AI vs AI mode:
-   ```
-   python3 main.py -m AI [-l]
-   ```
-   - The `-m AI` argument sets the mode to AI vs AI.
-   - The optional `-l` flag enables the "lite" version of the game.
-   - After running this command, you'll be prompted to choose two AI players to compete against each other.
+### 1. Human vs AI Mode
 
-3. Competition mode:
-   ```
-   python3 main.py -m competition [-l] [-t TURNS]
-   ```
-   - The `-m competition` argument sets the mode to competition.
-   - The optional `-l` flag enables the "lite" version of the game.
-   - The optional `-t TURNS` argument allows you to specify the number of turns for each matchup (default is 100).
-   - This mode will run multiple games between different AI players and output the results.
+```bash
+python3 main.py -m human [-l]
+```
 
-Additional notes:
-- The "lite" version (`-l` flag) changes the winning condition to any board in the nine boards, rather than the standard Ultimate Tic Tac Toe rules.
-- In human vs AI mode, you'll play as the X player, and the AI will be the O player.
-- The program uses various AI strategies, including Random, MiniMax with different depths and evaluation functions, and Monte Carlo Tree Search (MCTS) with different time limits.
+- **`-m human`**: Sets the mode to human vs AI
+- **`-l`** (optional): Enables the "lite" version of the game
+- You'll be prompted to choose an AI opponent from the available options
+- You play as X, and the AI plays as O
 
-#### An instruction on how to analyze the data:
+### 2. AI vs AI Mode
 
-**Prepare Your Data**:
-   - Ensure you have a CSV file containing the match results for your players.
-   - The CSV should have a structure where the first column contains player names, and subsequent columns represent matchups against other players.
-   - Each cell should contain a string representation of a tuple with win data and duration data.
+```bash
+python3 main.py -m AI [-l]
+```
 
-**Run the Script**:
+- **`-m AI`**: Sets the mode to AI vs AI
+- **`-l`** (optional): Enables the "lite" version of the game  
+- You'll be prompted to select two AI players to compete against each other
+- Watch as different AI strategies battle it out
 
-   Basic usage:
-   ```
-   python data_analyze.py path/to/your/data.csv
-   ```
+### 3. Competition Mode
 
-   If you want to specify a custom number of turns (default is 100):
-   ```
-   python data_analyze.py path/to/your/data.csv --num_turns 200
-   ```
+```bash
+python3 main.py -m competition [-l] [-t TURNS]
+```
+
+- **`-m competition`**: Runs a tournament between all AI players
+- **`-l`** (optional): Enables the "lite" version of the game
+- **`-t TURNS`** (optional): Number of games per matchup (default: 100)
+- Results are saved to CSV files for further analysis
+
+## Game Modes
+
+- **Standard Mode**: Follow traditional Ultimate Tic-Tac-Toe rules
+- **Lite Mode** (`-l` flag): Win by completing any of the nine boards (simplified winning condition)
+
+## Available AI Agents
+
+- **Random**: Makes random legal moves
+- **Minimax**: Various depths (4, 6, 8) with two evaluation functions
+- **MCTS**: Monte Carlo Tree Search with configurable time limits
+
+## Data Analysis
+
+After running competitions, you can analyze the results using the included data analysis script.
+
+### Prerequisites
+
+- Ensure you have a CSV file containing match results
+- The CSV should have player names in the first column
+- Subsequent columns represent matchups against other players
+- Each cell contains win/loss data and timing information
+
+### Usage
+
+Basic analysis:
+```bash
+python data_analyze.py path/to/your/data.csv
+```
+
+With custom number of turns:
+```bash
+python data_analyze.py path/to/your/data.csv --num_turns 200
+```
+
+The script will generate:
+- Performance charts and graphs
+- Statistical analysis of AI effectiveness
+- Comparative win rates and timing data
